@@ -1,28 +1,12 @@
-<![CDATA[<div align="center">
-
 # 🔐 Graf Tabanlı Kriptografik Byte Üreteci
 
-<img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
-<img src="https://img.shields.io/badge/Security-AES_Level-DC143C?style=for-the-badge&logo=shield&logoColor=white" alt="Security"/>
-<img src="https://img.shields.io/badge/License-MIT-00C851?style=for-the-badge" alt="License"/>
+![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Security](https://img.shields.io/badge/Security-AES_Level-DC143C?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-00C851?style=flat-square)
 
-<br/><br/>
-
-**Graf topolojisinden türetilen dinamik S-box ile AES seviyesinde güvenlik**
-
-<br/>
-
-```
-Seed → Graf → Topoloji → S-box → SPN → Güvenli Byte
-```
-
-</div>
-
-<br/>
+> **Graf topolojisinden türetilen dinamik S-box ile AES seviyesinde güvenlik**
 
 ---
-
-<br/>
 
 ## ⚡ Hızlı Başlangıç
 
@@ -34,109 +18,56 @@ secure_bytes = crypto.generate_bytes(32)
 print(secure_bytes.hex())
 ```
 
-<br/>
-
 ---
 
-<br/>
+## 📊 Görselleştirmeler
+
+### Graf Yapısı (256 Node, ~1500 Edge)
+![Graf Yapısı](outputs/izlem1/v_graph.png)
+
+### S-box Isı Haritası
+![S-box](outputs/izlem1/v_sbox_heat.png)
+
+### Topolojik Byte Matrisi
+![Topoloji](outputs/izlem1/v_topo_heat.png)
+
+### π Permütasyon Dağılımı
+![Permütasyon](outputs/izlem1/v_pi_plot.png)
+
+---
 
 ## 🎯 Neden Bu Proje?
 
-<table>
-<tr>
-<td width="50%">
-
-### ❌ Geleneksel (AES)
-```python
-# Sabit S-box
-S_BOX = [0x63, 0x7c, ...]  
-# Herkes için aynı!
-```
-
-</td>
-<td width="50%">
-
-### ✅ Bizim Yaklaşım
-```python
-# Dinamik S-box
-graph = build_graph(seed)
-S_BOX = generate_sbox(graph)
-# Her seed için benzersiz!
-```
-
-</td>
-</tr>
-</table>
-
-<br/>
+| Geleneksel (AES) | Bizim Yaklaşım |
+|------------------|----------------|
+| Sabit S-box | Dinamik S-box |
+| Herkes için aynı | Her seed için benzersiz |
+| `S = [0x63, 0x7c, ...]` | `S = f(Graph(seed))` |
 
 ---
 
-<br/>
-
-## 📊 Sistem Mimarisi
-
-```mermaid
-flowchart LR
-    A[🔑 Seed] --> B[🔗 Graf]
-    B --> C[📐 Topoloji]
-    C --> D[🎲 S-box]
-    C --> E[🔀 π Perm]
-    D --> F[⚙️ SPN]
-    E --> F
-    F --> G[🔒 Çıktı]
-    
-    style A fill:#e3f2fd
-    style G fill:#ffebee
-```
-
-<br/>
-
-### Detaylı Akış
+## 🔄 Sistem Akışı
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   SEED ──▶ SHA512×48 ──▶ GRAF (256 node, ~1500 edge)       │
-│                              │                              │
-│              ┌───────────────┼───────────────┐              │
-│              ▼               ▼               ▼              │
-│           Degree        Clustering      Laplacian           │
-│              │               │               │              │
-│              └───────────────┴───────────────┘              │
-│                              │                              │
-│                         XOR Fusion                          │
-│                              │                              │
-│                    ┌─────────┴─────────┐                    │
-│                    ▼                   ▼                    │
-│                 S-box (π)          Round Keys               │
-│                    │                   │                    │
-│                    └─────────┬─────────┘                    │
-│                              ▼                              │
-│                     SPN (12 rounds)                         │
-│                              │                              │
-│                              ▼                              │
-│                    16-byte Secure Block                     │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────┐     ┌─────────┐     ┌───────────┐     ┌─────────┐     ┌─────────┐
+│  SEED   │────▶│  GRAF   │────▶│ TOPOLOJİ  │────▶│  S-BOX  │────▶│   SPN   │
+│ string  │     │256 node │     │ features  │     │ AFFINE  │     │12 round │
+└─────────┘     └─────────┘     └───────────┘     └─────────┘     └────┬────┘
+                                                                       │
+                                                                       ▼
+                                                               ┌──────────────┐
+                                                               │ SECURE BYTES │
+                                                               │   16 byte    │
+                                                               └──────────────┘
 ```
-
-<br/>
 
 ---
-
-<br/>
 
 ## 🧮 Algoritma
 
-<details>
-<summary><strong>1️⃣ Graf Oluşturma</strong></summary>
-
-<br/>
+### 1. Graf Oluşturma
 
 ```
-ALGORITHM BuildGraph(seed)
-───────────────────────────
 INPUT:  seed (string)
 OUTPUT: G (256-node graph)
 
@@ -149,61 +80,36 @@ FOR round = 0 TO 47:
 RETURN G
 ```
 
-</details>
-
-<details>
-<summary><strong>2️⃣ Topolojik Özellik Çıkarımı</strong></summary>
-
-<br/>
+### 2. Topolojik Özellik Çıkarımı
 
 ```
-ALGORITHM ExtractFeatures(G)
-────────────────────────────
-degree[i]     ← G.degree(i)
-clustering[i] ← clustering_coefficient(i)
-betweenness[i]← betweenness_centrality(i)
-λ[]           ← eigenvalues(Laplacian(G))
+degree[i]      ← G.degree(i)
+clustering[i]  ← clustering_coefficient(i)
+betweenness[i] ← betweenness_centrality(i)
+λ[]            ← eigenvalues(Laplacian(G))
 
 topo_bytes ← degree ⊕ clustering ⊕ betweenness ⊕ λ
-RETURN topo_bytes
 ```
 
-</details>
-
-<details>
-<summary><strong>3️⃣ S-box Üretimi (Affine Mod)</strong></summary>
-
-<br/>
+### 3. S-box Üretimi (Affine Mod)
 
 ```
-ALGORITHM GenerateSbox(topo_bytes, λ)
-─────────────────────────────────────
 A ← AES_AFFINE_MATRIX (8×8)
 b ← SHA256(topo_bytes)[0] ⊕ XOR(λ[0:8])
 
 FOR x = 0 TO 255:
     S'[x] ← (A × S_AES[x]) ⊕ b
-
-RETURN S'
 ```
 
 **Neden Affine?**
 - ✅ DU = 4 korunur
-- ✅ NL = 112 korunur  
+- ✅ NL = 112 korunur
 - ✅ Bijective garantili
 
-</details>
-
-<details>
-<summary><strong>4️⃣ SPN Round</strong></summary>
-
-<br/>
+### 4. SPN Şifreleme
 
 ```
-ALGORITHM EncryptBlock(counter, S, π, RK)
-─────────────────────────────────────────
-state ← counter
-state ← state ⊕ RK[0]
+state ← counter ⊕ RK[0]
 
 FOR r = 1 TO 11:
     state ← SubBytes(state, S)
@@ -212,29 +118,15 @@ FOR r = 1 TO 11:
     state ← MixColumns(state)
     state ← state ⊕ RK[r]
 
-// Final round (no MixColumns)
-state ← SubBytes(state, S)
-state ← ShiftRows(state)
-state ← BitPermutation(state, π)
-state ← state ⊕ RK[12]
-
+state ← SubBytes → ShiftRows → BitPermutation → ⊕RK[12]
 RETURN state
 ```
 
-</details>
-
-<br/>
-
 ---
 
-<br/>
+## 💻 Python Kodu
 
-## 💻 Kod Örnekleri
-
-<details>
-<summary><strong>Graf Oluşturma</strong></summary>
-
-<br/>
+### Graf Oluşturma
 
 ```python
 import hashlib
@@ -251,112 +143,76 @@ def build_graph(seed: str) -> nx.Graph:
             u, v = h[i], h[i+1]
             if u != v:
                 G.add_edge(u, v)
-    
     return G
 ```
 
-</details>
-
-<details>
-<summary><strong>S-box Üretimi</strong></summary>
-
-<br/>
+### S-box Üretimi
 
 ```python
 def generate_sbox_affine(topo_bytes, laplacian):
-    # AES affine matrisi
-    A = np.array([
-        [1,0,0,0,1,1,1,1],
-        [1,1,0,0,0,1,1,1],
-        # ... (8x8 matrix)
-    ])
+    A = AES_AFFINE_MATRIX  # 8x8
+    b = sha256(topo_bytes)[0] ^ xor_reduce(laplacian[:8])
     
-    # b sabitini hesapla
-    b = sha256(topo_bytes)[0]
-    b ^= xor_reduce(normalize(laplacian[:8]))
-    
-    # S-box üret
     sbox = np.zeros(256, dtype=np.uint8)
     for x in range(256):
         sbox[x] = affine_transform(AES_SBOX[x], A, b)
-    
     return sbox
 ```
 
-</details>
-
-<details>
-<summary><strong>Tam Kullanım</strong></summary>
-
-<br/>
+### Kullanım
 
 ```python
 from src.main import GraphCrypto
 
-# 1. Sistem oluştur
+# Sistem oluştur
 crypto = GraphCrypto("my_secret_seed")
 
-# 2. Byte üret
-block = crypto.generate_block()      # 16 byte
-data = crypto.generate_bytes(1024)   # 1 KB
+# Byte üret
+block = crypto.generate_block()       # 16 byte
+data = crypto.generate_bytes(1024)    # 1 KB
 
-# 3. Şifrele
+# Şifrele
 ciphertext = crypto.encrypt(b"Hello World!")
 
-# 4. İstatistikler
+# İstatistikler
 print(crypto.get_stats())
+# Graf: 256 node, 1491 edge
+# S-box: AES'ten 248/256 byte farklı
 ```
-
-**Çıktı:**
-```
-[OK] Sistem hazır!
-     Graf: 256 node, 1491 edge
-     S-box: AES'ten 248/256 byte farklı
-```
-
-</details>
-
-<br/>
 
 ---
-
-<br/>
 
 ## 📈 Güvenlik Metrikleri
 
 ### S-box Analizi
 
 | Metrik | Değer | AES | Durum |
-|:------:|:-----:|:---:|:-----:|
-| **Differential Uniformity** | 4 | 4 | ✅ |
-| **Nonlinearity** | 112 | 112 | ✅ |
-| **SAC Score** | 0.9998 | 1.0 | ✅ |
-| **BIC Score** | 1.0 | 1.0 | ✅ |
+|--------|-------|-----|-------|
+| Differential Uniformity | 4 | 4 | ✅ |
+| Nonlinearity | 112 | 112 | ✅ |
+| SAC Score | 0.9998 | 1.0 | ✅ |
+| BIC Score | 1.0 | 1.0 | ✅ |
 
-### Rastgelelik Testi (1000 blok)
+### Rastgelelik Testi
 
 | Metrik | Değer | Beklenen |
-|:------:|:-----:|:--------:|
-| **Bit Bias** | 0.04% | <1% ✅ |
-| **Seri Korelasyon** | 0.0005 | <0.05 ✅ |
-| **Unique Bytes** | 256/256 | 256 ✅ |
-
-<br/>
+|--------|-------|----------|
+| Bit Bias | 0.04% | < 1% ✅ |
+| Seri Korelasyon | 0.0005 | < 0.05 ✅ |
+| Unique Bytes | 256/256 | 256 ✅ |
 
 ---
 
-<br/>
-
 ## 🔬 Pattern Analizi
 
-### ✅ Neden Pattern Oluşmaz?
+### Neden Pattern Oluşmaz?
 
 | Özellik | Açıklama |
 |---------|----------|
-| **Avalanche** | 1 bit değişim → %50 çıktı değişimi |
-| **Periyot** | 2¹²⁸ (pratik olarak sonsuz) |
-| **DDT Max** | 4 (optimal) |
-| **LAT Max** | 16 (optimal) |
+| Avalanche | 1 bit değişim → %50 çıktı değişimi |
+| Periyot | 2¹²⁸ (pratik olarak sonsuz) |
+| DDT Max | 4 (optimal) |
+| LAT Max | 16 (optimal) |
 
 ### Test Sonucu
 
@@ -369,75 +225,55 @@ Block 2: 51a59087 22028ef5 ca60a8c2 9ccda411
 → İstatistiksel korelasyon yok ✅
 ```
 
-<br/>
-
 ---
-
-<br/>
 
 ## 📁 Proje Yapısı
 
 ```
 Graph_based_cryptography/
-│
 ├── src/
-│   ├── main.py          # Ana sınıf
-│   ├── topology.py      # Graf işlemleri
-│   ├── sbox.py          # S-box üretimi
-│   ├── spn.py           # SPN şifreleme
-│   ├── gf256.py         # GF(2⁸) matematik
-│   └── analysis.py      # Güvenlik testleri
-│
-├── demo.py              # Demo script
+│   ├── main.py           # Ana sınıf
+│   ├── topology.py       # Graf işlemleri
+│   ├── sbox.py           # S-box üretimi
+│   ├── spn.py            # SPN şifreleme
+│   ├── gf256.py          # GF(2⁸) matematik
+│   ├── analysis.py       # Güvenlik testleri
+│   └── advanced_analysis.py
+├── outputs/
+│   ├── izlem1/           # Görselleştirmeler
+│   └── izlem2/
+├── demo.py
 └── README.md
 ```
 
-<br/>
-
 ---
-
-<br/>
 
 ## 🚀 Kurulum
 
 ```bash
-# Klonla
-git clone https://github.com/user/Graph_based_cryptography.git
+git clone https://github.com/yusufkrnz/Graph_based_cryptography.git
 cd Graph_based_cryptography
 
-# Bağımlılıklar
-pip install networkx numpy
+pip install networkx numpy matplotlib seaborn
 
-# Test
 python demo.py
 ```
 
-<br/>
-
 ---
-
-<br/>
-
-<div align="center">
 
 ## 🏆 Özet
 
-| | |
-|:---:|:---:|
+| Özellik | Değer |
+|---------|-------|
 | **Güvenlik** | AES-128 eşdeğeri |
 | **Özgünlük** | Her seed → Benzersiz S-box |
 | **Determinizm** | Tekrarlanabilir |
 | **Pattern** | Oluşmaz |
 
-<br/>
-
 ```
-🔑 GraphCrypto(seed) = SPN₁₂(Counter, S(G(seed)), π(G), RK)
+GraphCrypto(seed) = SPN₁₂(Counter, S(G(seed)), π(G), RK)
 ```
 
-<br/>
+---
 
 **Made with ❤️ for cryptographic research**
-
-</div>
-]]>
