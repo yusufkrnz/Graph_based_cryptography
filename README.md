@@ -8,6 +8,35 @@
 
 ---
 
+## 📊 Öncesi vs Sonrası Karşılaştırması
+
+### S-box Isı Haritası
+
+| ❌ Öncesi (Mavi Adacıklar Var) | ✅ Sonrası (İyileştirilmiş) |
+|:-----------------------------:|:---------------------------:|
+| ![Öncesi](outputs/izlem1/v_sbox_heat.png) | ![Sonrası](outputs/izlem2/v_sbox_heat2.png) |
+| *Otokorelasyon: 0.482* | *Otokorelasyon: 0.471 ↓* |
+
+### Topolojik Byte Matrisi
+
+| ❌ Öncesi | ✅ Sonrası (Laplacian Entegre) |
+|:---------:|:------------------------------:|
+| ![Öncesi](outputs/izlem1/v_topo_heat.png) | ![Sonrası](outputs/izlem2/v_topo_heat.png) |
+
+### Graf Yapısı (256 Node)
+
+| Seyrek Graf | Yoğun Graf (~1500 Edge) |
+|:-----------:|:-----------------------:|
+| ![Seyrek](outputs/izlem1/v_graph.png) | ![Yoğun](outputs/izlem2/v_graph.png) |
+
+### π Permütasyon Dağılımı
+
+| Öncesi | Sonrası |
+|:------:|:-------:|
+| ![Öncesi](outputs/izlem1/v_pi_plot.png) | ![Sonrası](outputs/izlem2/v_pi_plot.png) |
+
+---
+
 ## ⚡ Hızlı Başlangıç
 
 ```python
@@ -17,22 +46,6 @@ crypto = GraphCrypto("my_secret_seed")
 secure_bytes = crypto.generate_bytes(32)
 print(secure_bytes.hex())
 ```
-
----
-
-## 📊 Görselleştirmeler
-
-### Graf Yapısı (256 Node, ~1500 Edge)
-![Graf Yapısı](outputs/izlem1/v_graph.png)
-
-### S-box Isı Haritası
-![S-box](outputs/izlem1/v_sbox_heat.png)
-
-### Topolojik Byte Matrisi
-![Topoloji](outputs/izlem1/v_topo_heat.png)
-
-### π Permütasyon Dağılımı
-![Permütasyon](outputs/izlem1/v_pi_plot.png)
 
 ---
 
@@ -240,8 +253,8 @@ Graph_based_cryptography/
 │   ├── analysis.py       # Güvenlik testleri
 │   └── advanced_analysis.py
 ├── outputs/
-│   ├── izlem1/           # Görselleştirmeler
-│   └── izlem2/
+│   ├── izlem1/           # Öncesi
+│   └── izlem2/           # Sonrası (İyileştirilmiş)
 ├── demo.py
 └── README.md
 ```
